@@ -292,6 +292,10 @@
   }
   .yn.y{ color: var(--crimson); }
   .yn.n{ color: var(--crimson-soft); opacity: 0.8; }
+  .yn.q{ color: var(--ink); opacity: 0.4; font-size: 13px; }
+  .yn.h{ color: var(--crimson); }
+  .yn.h svg{ width: 11px; height: 10px; display: block; margin: 0 auto; }
+  .guests li.beloved .gname{ color: var(--crimson); }
   .guest-note{
     margin: 6px 0 0; max-width: 42ch;
     font-family: 'La Belle Aurore', cursive;
@@ -531,7 +535,7 @@
     </section>
 
     <section class="panel panel-wide" id="panel-guests" role="tabpanel" aria-labelledby="tab-guests" hidden>
-      <p class="kicker">Y for yes, N for not coming or overseas <span class="sad">:(</span></p>
+      <p class="kicker">Y yes, ? still waiting, N can't make it <span class="sad">:(</span></p>
       <h2 class="title">Guest List</h2>
       <p class="no-plus">No +1s invited, I just want you.</p>
 
@@ -571,15 +575,31 @@
 
       if(D.guests && D.guests.length){
         var ul = document.getElementById('guestList');
+        var MARK = {
+          yes:     { cls: 'y', text: 'Y' },
+          no:      { cls: 'n', text: 'N' },
+          pending: { cls: 'q', text: '?' },
+          heart:   { cls: 'h', text: '' }
+        };
         D.guests.forEach(function(g){
+          var mark = MARK[g.status] || MARK.pending;
           var li = document.createElement('li');
-          if(!g.coming){ li.className = 'away'; }
+          if(g.status === 'no'){ li.className = 'away'; }
+          if(g.status === 'heart'){ li.className = 'beloved'; }
+
           var n = document.createElement('span');
           n.className = 'gname';
           n.textContent = g.name;
+
           var yn = document.createElement('span');
-          yn.className = 'yn ' + (g.coming ? 'y' : 'n');
-          yn.textContent = g.coming ? 'Y' : 'N';
+          yn.className = 'yn ' + mark.cls;
+          if(g.status === 'heart'){
+            yn.innerHTML = '<svg viewBox="0 0 20 18" aria-hidden="true"><use href="#f-heart"></use></svg>';
+            yn.setAttribute('aria-label', 'always');
+          } else {
+            yn.textContent = mark.text;
+          }
+
           li.appendChild(n);
           li.appendChild(yn);
           ul.appendChild(li);
