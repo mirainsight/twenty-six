@@ -1,2 +1,6 @@
-# Nothing ignored: the full invitation, including the address and guest
-# list, is published deliberately so guests get a one-tap link.
+# The published invitation is index.html plus doodles/ and private/.
+# Everything below is a generated or working file, not part of the site.
+*-offline.html
+studio.html
+script-samples.html
+card-elements.png
