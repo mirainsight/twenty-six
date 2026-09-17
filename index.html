@@ -1,3 +1,5 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Mira Turns 26</title>
 <meta name="robots" content="noindex, nofollow, noarchive">
 <meta name="referrer" content="no-referrer">
@@ -304,6 +306,28 @@
 
   [hidden]{ display: none !important; }
 
+  @media (max-width: 620px){
+    .content{ padding: 92px 16px 112px; gap: 15px; }
+    .panel{ max-width: 316px; }
+    .tab{ font-size: 13px; letter-spacing: 0.2em; }
+    .tabs{ gap: 18px; }
+    .kicker{ font-size: 11.5px; letter-spacing: 0.28em; }
+    .kicker::before, .kicker::after{ width: 18px; }
+    .invite-line{ font-size: 18.5px; }
+    .when .day{ font-size: 13.5px; letter-spacing: 0.2em; }
+    .when .hour{ font-size: 20px; }
+    .venue-btn{ font-size: 27px; }
+    .venue-hint{ font-size: 16px; }
+    .address-card{ font-size: 18px; }
+    .address-card .note{ font-size: 17px; }
+    .quiet{ font-size: 16.5px; max-width: 30ch; }
+    .banner{ width: min(420px, 84vw); }
+    .balloons{ width: clamp(130px, 34vw, 170px); }
+    .guests .gname, .musts li > span, .facts dd{ font-size: 18.5px; }
+    .guests{ gap: 0 22px; }
+    .no-plus{ font-size: 19px; }
+  }
+
   @media (max-width: 760px){
     .content{ padding: 70px 24px 92px; }
   }
@@ -571,7 +595,7 @@
       var panel = content.querySelector('.panel:not([hidden])');
       var avoid = [
         rectOf(document.getElementById('tabs'), o, 18),
-        rectOf(panel, o, state.mode==='wreath' ? 46 : 24)
+        rectOf(panel, o, state.mode==='wreath' ? 46 : (W < 620 ? 11 : 24))
       ];
       if(state.hero.banner && !bannerEl.hidden){ avoid.push(rectOf(bannerEl, o, 16)); }
 
@@ -584,7 +608,7 @@
       }
 
       var inset = m + 8;
-      var scale = Math.min(1, Math.max(0.55, W/1180)) * SIZE[state.size];
+      var scale = Math.min(1, Math.max(W < 560 ? 0.4 : 0.55, W/1180)) * SIZE[state.size];
       var placed = [];
       var bandW = Math.min(W,H) * 0.3;
 
@@ -605,8 +629,10 @@
 
       function place(def, filler, sz){
         var w = sz, h = sz*(def.h/def.w), gap = filler?3:6;
+        var bleed = filler ? 0 : w * (W < 620 ? 0.42 : 0);
         for(var t=0; t<70; t++){
-          var box = { x: between(inset, W-inset-w), y: between(inset, H-inset-h), w:w, h:h };
+          var box = { x: between(inset - bleed, W - inset - w + bleed),
+                      y: between(inset, H-inset-h), w:w, h:h };
           if(!filler && !inRegion(box)) continue;
           var ok = true, i;
           for(i=0;i<avoid.length;i++){ if(hits(box,avoid[i],0)){ ok=false; break; } }
