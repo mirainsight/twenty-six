@@ -1,3 +1,2 @@
-# Guest names, home address and door-entry instructions.
-# Ships with the published artifact only, never with this repo.
-private/
+# Nothing ignored: the full invitation, including the address and guest
+# list, is published deliberately so guests get a one-tap link.
