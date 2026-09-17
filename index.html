@@ -118,6 +118,72 @@
     .balloons img{ animation: bob 6.5s ease-in-out 1.4s infinite; }
   }
 
+  /* ---------------- sealed envelope ---------------- */
+  .cover{
+    position: absolute; inset: 0; z-index: 5;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 20px;
+  }
+  .card.sealed .content{ visibility: hidden; }
+
+  .cover-btn{
+    position: relative; display: block;
+    width: min(250px, 54vw); padding: 0;
+    background: none; border: none; cursor: pointer;
+  }
+  .cover-btn:focus-visible{ outline: 2px solid var(--crimson); outline-offset: 12px; border-radius: 4px; }
+  .cover-env{ position: relative; z-index: 2; display: block; width: 100%; height: auto; }
+  .cover-letter{
+    position: absolute; z-index: 1;
+    left: 14%; right: 14%; top: 16%; bottom: 24%;
+    background: var(--cream);
+    border: 1px solid var(--crimson-soft);
+    opacity: 0;
+  }
+  .cover-hint{
+    margin: 0;
+    font-family: 'La Belle Aurore', cursive;
+    font-size: 19px; color: var(--crimson-soft);
+    transform: rotate(-1.5deg);
+  }
+
+  @keyframes envIn{
+    from{ opacity: 0; scale: 0.82; translate: 0 16px; }
+    to{ opacity: 1; scale: 1; translate: 0 0; }
+  }
+  @keyframes envIdle{
+    0%,100%{ translate: 0 0; }
+    50%{ translate: 0 -7px; }
+  }
+  @keyframes envOpen{
+    0%{ scale: 1; rotate: 0deg; opacity: 1; }
+    30%{ scale: 1.09; rotate: -2.5deg; opacity: 1; }
+    100%{ scale: 1.55; rotate: 1deg; opacity: 0; }
+  }
+  @keyframes letterOut{
+    0%{ opacity: 0; translate: 0 0; scale: 0.92; }
+    28%{ opacity: 1; translate: 0 -26px; scale: 1; }
+    100%{ opacity: 0; translate: 0 -104px; scale: 1.7; }
+  }
+  @keyframes hintOut{
+    to{ opacity: 0; translate: 0 12px; }
+  }
+
+  @media (prefers-reduced-motion: no-preference){
+    .cover-btn{ animation: envIn 0.8s cubic-bezier(0.2,0.7,0.3,1) 0.45s both; }
+    .cover-env{ animation: envIdle 4.5s ease-in-out 1.4s infinite; }
+    .cover-hint{ animation: envIn 0.8s cubic-bezier(0.2,0.7,0.3,1) 0.7s both; }
+
+    .cover.opening .cover-btn{ animation: none; }
+    .cover.opening .cover-env{ animation: envOpen 0.85s cubic-bezier(0.4,0,0.3,1) both; }
+    .cover.opening .cover-letter{ animation: letterOut 0.85s cubic-bezier(0.4,0,0.3,1) both; }
+    .cover.opening .cover-hint{ animation: hintOut 0.3s ease-out both; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .cover.opening{ display: none; }
+  }
+
   /* ---------------- content ---------------- */
   .content{
     position: relative; z-index: 3;
@@ -355,6 +421,14 @@
   <svg class="frame-svg" id="frameSvg" preserveAspectRatio="none" aria-hidden="true">
     <path id="framePath" fill="none" stroke="var(--crimson)" stroke-width="1.1" stroke-opacity="0.5"></path>
   </svg>
+
+  <div class="cover" id="cover" hidden>
+    <button class="cover-btn" id="coverBtn" aria-label="Open the invitation">
+      <span class="cover-letter" aria-hidden="true"></span>
+      <img class="cover-env" src="doodles/envelope-heart.png" alt="" draggable="false">
+    </button>
+    <p class="cover-hint">tap to open</p>
+  </div>
 
   <main class="content" id="content">
     <div class="banner" id="bannerEl"><img src="doodles/banner-happy-birthday.png" alt="Happy Birthday"></div>
@@ -735,8 +809,30 @@
       setTimeout(relayout, 420);
     });
 
+    /* Sealed envelope. Set up in JS so that without scripting the
+       invitation is simply visible rather than locked behind a cover. */
+    var cover = document.getElementById('cover');
+    var coverBtn = document.getElementById('coverBtn');
+    var invitePanel = document.getElementById('panel-invite');
+    var opened = false;
+
+    card.classList.add('sealed');
+    cover.hidden = false;
+
+    function openInvite(){
+      if(opened) return;
+      opened = true;
+      cover.classList.add('opening');
+      setTimeout(function(){
+        card.classList.remove('sealed');
+        enter(invitePanel);
+        window.scrollTo(0, 0);
+      }, 400);
+      setTimeout(function(){ cover.hidden = true; }, 950);
+    }
+    coverBtn.addEventListener('click', openInvite);
+
     applyAll();
-    enter(document.getElementById('panel-invite'));
     if(window.ResizeObserver){ new ResizeObserver(relayout).observe(card); }
     else { window.addEventListener('resize', relayout); }
     if(document.fonts && document.fonts.ready){ document.fonts.ready.then(relayout); }
