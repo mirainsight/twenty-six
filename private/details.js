@@ -40,7 +40,7 @@ window.PARTY_DETAILS = {
     { name: "Fabian",         status: "pending"},
     { name: "Kelly",          status: "no"     },
     { name: "Jia Xin",        status: "no"     },
-    { name: "Joseph",         status: "yes"    },
+    { name: "Josh Wong",      status: "yes"    },
     { name: "Shaun",          status: "heart"  }
   ],
 
