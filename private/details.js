@@ -34,7 +34,7 @@ window.PARTY_DETAILS = {
     { name: "Caitlin",        status: "pending"},
     { name: "Nat Heng",       status: "pending"},
     { name: "Hayley",         status: "pending"},
-    { name: "Kim Liew",       status: "pending"},
+    { name: "Kim Liew",       status: "yes"    },
     { name: "Bev",            status: "no"     },
     { name: "Ryan Gui",       status: "pending"},
     { name: "Fabian",         status: "pending"},
