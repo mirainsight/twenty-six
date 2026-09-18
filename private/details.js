@@ -47,7 +47,7 @@ window.PARTY_DETAILS = {
     { name: "Shaun",          status: "heart"  }
   ],
 
-  guestNote: "Joyce, Bev, Kelly and Jia Xin are overseas this year. Wanted them here all the same.",
+  guestNote: "Joyce, Dini, Nic, Bev, Kelly and Jia Xin are overseas this year. Wanted them here all the same.",
 
   /* Wishlist. The handmade group comes first, priced "priceless". The bought
      things follow in Mira's own order of wanting -- not by price, so do not
