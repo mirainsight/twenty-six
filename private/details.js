@@ -105,7 +105,12 @@ window.PARTY_DETAILS = {
     { id: "film",       group: "buy",  name: "Polaroid film",
       note: "For my Instax Mini 12." },
     { id: "cake",       group: "buy",  name: "A good alcoholic tiramisu, or a cheesy cheesecake" },
-    { id: "cattreat",   group: "buy",  name: "Cat treats" }
+    { id: "cattreat",   group: "buy",  name: "Cat treats" },
+
+    /* The last line is a joke. Left ambiguous on purpose -- the double take
+       is the whole point, so do not explain it away. */
+    { id: "babyclothes", group: "buy", name: "Baby clothes",
+      note: "Wait, what?" }
   ],
 
   wishlistNote: "No nuts, please — I am allergic.",
