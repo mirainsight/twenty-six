@@ -12,7 +12,7 @@ window.PARTY_DETAILS = {
     { name: "Exuan",          status: "yes"    },
     { name: "Adrienna",       status: "pending"},
     { name: "Wan Qi",         status: "pending"},
-    { name: "Joyce",          status: "pending"},
+    { name: "Joyce",          status: "no"     },
     { name: "Zoe Pang",       status: "pending"},
     { name: "Ellysa",         status: "yes"    },
     { name: "Yen Joo",        status: "pending"},
@@ -47,7 +47,7 @@ window.PARTY_DETAILS = {
     { name: "Shaun",          status: "heart"  }
   ],
 
-  guestNote: "Bev, Kelly and Jia Xin are overseas this year. Wanted them here all the same.",
+  guestNote: "Joyce, Bev, Kelly and Jia Xin are overseas this year. Wanted them here all the same.",
 
   /* Wishlist. The handmade group comes first, priced "priceless". The bought
      things follow in Mira's own order of wanting -- not by price, so do not
