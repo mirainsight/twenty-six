@@ -43,6 +43,7 @@ window.PARTY_DETAILS = {
     { name: "Josh Wong",      status: "yes"    },
     { name: "Ashley Cheah",   status: "pending"},
     { name: "Oswell",         status: "pending"},
+    { name: "Aunty Luna and Uncle Tony (Mira’s parents)", status: "pending"},
     { name: "Shaun",          status: "heart"  }
   ],
 

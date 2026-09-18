@@ -308,7 +308,9 @@
     padding: 6px 2px 5px;
     border-bottom: 1px dotted rgba(176,28,48,0.22);
   }
-  .guests .gname{ font-size: 17px; color: var(--ink-strong); }
+  /* The panel centres its text; a name long enough to wrap would centre its
+     own lines and sit oddly against the rest of the column. */
+  .guests .gname{ font-size: 17px; color: var(--ink-strong); text-align: left; }
   .guests li.away .gname{ font-style: italic; color: var(--ink); opacity: 0.8; }
   .yn{
     flex: none; width: 16px; text-align: center;
