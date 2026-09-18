@@ -411,6 +411,10 @@
   }
   .wl-said:focus{ outline: none; border-bottom-color: var(--crimson); }
 
+  .wl-problem{
+    margin: 8px 0 0; font-style: italic; font-size: 14px; color: var(--crimson);
+  }
+
   .wl-allergy{
     margin: 0; max-width: 40ch; padding-top: 12px;
     border-top: 1px dotted rgba(176,28,48,0.25);
@@ -516,7 +520,24 @@
     letter-spacing: 0.14em; color: var(--crimson);
   }
   .wl-go:hover{ background: rgba(176,28,48,0.07); border-color: var(--crimson); }
+  .wl-go:disabled{ opacity: 0.45; cursor: default; }
+  .wl-go:disabled:hover{ background: none; border-color: rgba(176,28,48,0.35); }
   .wl-msg{ margin: 9px 0 0; min-height: 1em; font-style: italic; font-size: 14px; color: var(--crimson); }
+
+  /* Stretching the key takes a second or two on a phone, and the sheet takes
+     its own. Three hearts beating in turn, rather than a spinner. */
+  .wl-wait{ display: flex; justify-content: center; gap: 8px; margin-top: 13px; color: var(--crimson); }
+  .wl-wait[hidden]{ display: none; }
+  .wl-wait svg{ width: 13px; height: 12px; display: block; opacity: 0.22; }
+  @media (prefers-reduced-motion: no-preference){
+    .wl-wait svg{ animation: beat 1.3s ease-in-out infinite; }
+    .wl-wait svg:nth-child(2){ animation-delay: 0.19s; }
+    .wl-wait svg:nth-child(3){ animation-delay: 0.38s; }
+    @keyframes beat{
+      0%, 100%{ opacity: 0.22; scale: 0.85; }
+      40%{ opacity: 1; scale: 1.15; }
+    }
+  }
 
   .wl-signed{
     display: flex; align-items: baseline; justify-content: center; gap: 10px;
@@ -835,6 +856,11 @@
       </label>
 
       <button class="wl-go" id="wlGo" type="button">Unlock</button>
+      <div class="wl-wait" id="wlWait" hidden aria-hidden="true">
+        <svg viewBox="0 0 20 18"><use href="#f-heart"></use></svg>
+        <svg viewBox="0 0 20 18"><use href="#f-heart"></use></svg>
+        <svg viewBox="0 0 20 18"><use href="#f-heart"></use></svg>
+      </div>
       <p class="wl-msg" id="wlMsg" role="status"></p>
     </div>
   </div>
@@ -1166,7 +1192,7 @@
          list alone, Mira's key) or 'gift' (the list plus who is getting
          what, the friends' key). Only 'gift' ever touches the sheet. */
       var mode = null;
-      var key = null, me = '', claims = {}, opened = {}, busy = {};
+      var key = null, me = '', claims = {}, opened = {}, busy = {}, problems = {};
 
       var madeEl = document.getElementById('wlMade');
       var buyEl = document.getElementById('wlBuy');
@@ -1178,6 +1204,7 @@
       var passEl = document.getElementById('wlPass');
       var whoEl = document.getElementById('wlWho');
       var goEl = document.getElementById('wlGo');
+      var waitEl = document.getElementById('wlWait');
       var msgEl = document.getElementById('wlMsg');
       var signed = document.getElementById('wlSigned');
       var signedAs = document.getElementById('wlSignedAs');
@@ -1375,6 +1402,13 @@
         if(unlocked){
           body.appendChild(claimList(mine));
           body.appendChild(actions(it, mine));
+          if(problems[it.id]){
+            var pb = document.createElement('p');
+            pb.className = 'wl-problem';
+            pb.setAttribute('role', 'status');
+            pb.textContent = problems[it.id];
+            body.appendChild(pb);
+          }
         }
 
         inner.appendChild(body);
@@ -1449,50 +1483,103 @@
 
       /* ---- changing things ---- */
 
+      /* The sheet is a second or two away, and waiting on it made every tap
+         feel broken. The change lands in the list straight away and the write
+         goes on behind it; if the write does not land, the change is taken
+         back and the row says so. */
       function claim(it, said){
-        if(!key || busy[it.id]) return;
-        busy[it.id] = true;
-        opened[it.id] = true;
-        seal({ who: me, said: said, at: Date.now() })
-          .then(function(blob){ return store.put(rowKey(it.id, me), blob); })
-          .then(refresh)
-          .catch(function(){ say('That did not save. Try again?'); })
-          .then(function(){ busy[it.id] = false; });
+        if(mode !== 'gift' || busy[it.id]) return;
+        var entry = { who: me, said: said, at: Date.now() };
+        var before = (claims[it.id] || []).slice();
+        show(it, before.concat([entry]));
+        behind(it, before, function(){
+          return seal(entry).then(function(blob){
+            return store.put(rowKey(it.id, me), blob);
+          });
+        });
       }
 
       function drop(it){
-        if(!key || busy[it.id]) return;
-        busy[it.id] = true;
+        if(mode !== 'gift' || busy[it.id]) return;
+        var before = (claims[it.id] || []).slice();
+        show(it, before.filter(function(c){ return c.who !== me; }));
+        behind(it, before, function(){ return store.del(rowKey(it.id, me)); });
+      }
+
+      function show(it, list){
+        claims[it.id] = list;
         opened[it.id] = true;
-        store.del(rowKey(it.id, me))
-          .then(refresh)
-          .catch(function(){ say('That did not save. Try again?'); })
-          .then(function(){ busy[it.id] = false; });
+        delete problems[it.id];
+        render();
+        setTimeout(relayout, 60);
+      }
+
+      function behind(it, before, write){
+        busy[it.id] = true;
+        write().then(function(){
+          busy[it.id] = false;
+          catchUp();
+        }).catch(function(){
+          busy[it.id] = false;
+          claims[it.id] = before;
+          problems[it.id] = 'That did not save — have another go.';
+          render();
+          setTimeout(relayout, 60);
+        });
+      }
+
+      function collect(map){
+        var next = {};
+        return Promise.all(Object.keys(map).map(function(k){
+          return unseal(map[k]).then(function(v){
+            if(!v || !v.who) return;
+            var id = k.split('::')[0];
+            (next[id] = next[id] || []).push(v);
+          });
+        })).then(function(){
+          Object.keys(next).forEach(function(id){
+            next[id].sort(function(a, b){ return (a.at || 0) - (b.at || 0); });
+          });
+          return next;
+        });
       }
 
       function refresh(){
-        return store.all().then(function(map){
-          var next = {};
-          return Promise.all(Object.keys(map).map(function(k){
-            return unseal(map[k]).then(function(v){
-              if(!v || !v.who) return;
-              var id = k.split('::')[0];
-              (next[id] = next[id] || []).push(v);
-            });
-          })).then(function(){
-            Object.keys(next).forEach(function(id){
-              next[id].sort(function(a, b){ return (a.at || 0) - (b.at || 0); });
-            });
-            claims = next;
-            render();
-            setTimeout(relayout, 60);
-          });
+        return store.all().then(collect).then(function(next){
+          claims = next;
+          render();
+          setTimeout(relayout, 60);
         });
+      }
+
+      /* Pick up anyone else's claims once our own write has landed, but only
+         redraw if something actually moved: a list that rearranges itself
+         under the cursor is its own kind of jank. */
+      function catchUp(){
+        store.all().then(collect).then(function(next){
+          if(shapeOf(next) === shapeOf(claims)) return;
+          claims = next;
+          render();
+          setTimeout(relayout, 60);
+        }).catch(function(){});
+      }
+
+      function shapeOf(c){
+        return Object.keys(c).sort().map(function(id){
+          return id + ':' + c[id].map(function(x){
+            return x.who + '/' + (x.said || '');
+          }).sort().join(',');
+        }).join('|');
       }
 
       /* ---- the gate ---- */
 
       function say(t){ msgEl.textContent = t || ''; }
+
+      function working(on){
+        waitEl.hidden = !on;
+        goEl.disabled = !!on;
+      }
 
       function names(){
         return (D.guests || []).map(function(g){ return g.name; })
@@ -1531,6 +1618,7 @@
           return Promise.resolve(false);
         }
         say('Unlocking…');
+        working(true);
         return derive(pass).then(function(k){
           if(!D.claimsCheck) return k;
           return unseal(D.claimsCheck, k).then(function(v){
@@ -1546,12 +1634,14 @@
              seconds, so keep saying something until the list is actually in. */
           say('Fetching what everyone has claimed…');
           return refresh().then(function(){
+            working(false);
             say('');
             closeGate(true);
             showSigned();
             return true;
           });
         }).catch(function(){
+          working(false);
           key = null;
           mode = null;
           say('That passphrase is not right.');
