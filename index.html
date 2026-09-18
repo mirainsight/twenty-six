@@ -198,7 +198,10 @@
   .banner{ width: min(520px, 76vw); margin-bottom: 4px; }
   .banner img{ display: block; width: 100%; height: auto; }
 
-  .tabs{ display: flex; gap: clamp(14px, 4vw, 34px); margin-bottom: 2px; }
+  .tabs{
+    display: flex; flex-wrap: wrap; justify-content: center;
+    gap: 0 clamp(13px, 3.4vw, 34px); margin-bottom: 2px;
+  }
   .tab{
     position: relative; background: none; border: none;
     padding: 4px 2px 12px; cursor: pointer;
@@ -216,6 +219,21 @@
     color: var(--crimson); opacity: 0; transition: opacity 0.22s ease;
   }
   .tab[aria-selected="true"] .underline{ opacity: 1; }
+
+  /* The "new" mark. Breathes slowly rather than blinking, so it catches the
+     eye without turning the tabs into a notification tray. */
+  .tab-new{
+    position: relative; top: -0.5em; margin-left: 3px;
+    font-size: 1.35em; font-weight: 700; letter-spacing: 0;
+    color: var(--crimson);
+  }
+  /* Unselected tabs sit at half opacity and a child cannot climb back out of
+     that, so the new tab is dimmed a little less than its neighbours. */
+  #tab-wishlist:not([aria-selected="true"]){ opacity: 0.72; }
+  @media (prefers-reduced-motion: no-preference){
+    .tab-new{ animation: newmark 2.8s ease-in-out infinite; }
+    @keyframes newmark{ 0%, 100%{ opacity: 1; } 50%{ opacity: 0.55; } }
+  }
   .tab .underline svg{ width: 100%; height: 7px; display: block; }
 
   .panel{ display: flex; flex-direction: column; align-items: center; gap: 18px; max-width: 460px; }
@@ -303,6 +321,206 @@
     transform: rotate(-0.6deg);
   }
 
+  /* Wishlist. Every line is closed by default; the detail, the claims and
+     the gifting controls all live inside the fold, so the panel reads as a
+     quiet list until someone actually asks for more. */
+  .wl-hint{
+    margin: -4px 0 2px; max-width: 42ch;
+    font-style: italic; font-size: 15.5px; line-height: 1.5;
+    color: var(--ink); opacity: 0.9;
+  }
+
+  .wl-group{ width: 100%; max-width: 480px; margin: 0 auto; }
+  .wl-head{
+    margin: 0 0 6px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px;
+    font-size: 10.5px; letter-spacing: 0.26em;
+    text-transform: uppercase; color: var(--crimson);
+  }
+  .wl-head span{ flex: none; }
+  .wl-head::after{ content: ""; order: 1; flex: 1 1 30px; height: 1px; background: currentColor; opacity: 0.3; }
+  .wl-head em{
+    order: 2; flex: none; margin-left: auto;
+    font-style: italic; letter-spacing: 0.14em; opacity: 0.75;
+    text-transform: none; font-size: 11px;
+  }
+
+  .wl{ list-style: none; margin: 0 0 22px; padding: 0; }
+  .wl-item{ border-bottom: 1px dotted rgba(176,28,48,0.22); }
+
+  .wl-row{
+    width: 100%; display: flex; align-items: baseline; gap: 10px;
+    background: none; border: none; padding: 9px 2px 8px;
+    font-family: 'Cormorant Garamond', serif; text-align: left;
+    color: var(--ink-strong); cursor: pointer;
+  }
+  .wl-row:focus-visible{ outline: 1.5px solid var(--crimson); outline-offset: 3px; }
+  .wl-item.flat .wl-row{ cursor: default; }
+  .wl-name{ flex: 1; font-size: 17px; line-height: 1.35; }
+  .wl-row .chev{ flex: none; width: 13px; height: 13px; color: var(--crimson); opacity: 0.55; transition: transform 0.3s ease; align-self: center; }
+  .wl-row[aria-expanded="true"] .chev{ transform: rotate(180deg); }
+  .wl-item.flat .chev{ visibility: hidden; }
+
+  .wl-mark{ flex: none; display: flex; align-items: center; gap: 5px; color: var(--crimson); }
+  .wl-mark svg{ width: 11px; height: 10px; display: block; }
+  .wl-mark .n{ font-size: 11.5px; font-variant-numeric: tabular-nums; }
+  .wl-voucher{
+    flex: none; font-size: 9.5px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--crimson-soft); opacity: 0.9; align-self: center;
+  }
+
+  .wl-detail{ display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.38s cubic-bezier(0.4,0,0.2,1); }
+  .wl-detail.open{ grid-template-rows: 1fr; }
+  .wl-detail > div{ overflow: hidden; }
+  .wl-body{ padding: 2px 2px 14px; text-align: left; }
+  .wl-note{
+    margin: 0; font-style: italic; font-size: 15.5px; line-height: 1.5;
+    color: var(--ink); max-width: 46ch;
+  }
+
+  .wl-claims{ list-style: none; margin: 11px 0 0; padding: 0; }
+  .wl-claims li{ display: flex; align-items: baseline; gap: 8px; padding: 3px 0; font-size: 15px; color: var(--ink-strong); }
+  .wl-claims svg{ flex: none; width: 11px; height: 10px; color: var(--crimson); }
+  .wl-claims .who{ font-style: normal; }
+  .wl-claims .said{ font-style: italic; color: var(--ink); opacity: 0.85; }
+  .wl-claims .mine .who{ color: var(--crimson); }
+
+  .wl-act{ margin-top: 11px; display: flex; flex-wrap: wrap; align-items: center; gap: 9px; }
+  .wl-btn{
+    background: none; border: 1px solid rgba(176,28,48,0.35); border-radius: 999px;
+    padding: 5px 15px; cursor: pointer;
+    font-family: 'Cormorant Garamond', serif; font-size: 13px;
+    letter-spacing: 0.1em; color: var(--crimson);
+    transition: background 0.2s ease, border-color 0.2s ease;
+  }
+  .wl-btn:hover{ background: rgba(176,28,48,0.07); border-color: var(--crimson); }
+  .wl-btn:focus-visible{ outline: 1.5px solid var(--crimson); outline-offset: 3px; }
+  .wl-btn.plain{ border-color: transparent; color: var(--ink); opacity: 0.7; padding: 5px 4px; }
+  .wl-btn.plain:hover{ background: none; opacity: 1; }
+  .wl-said{
+    flex: 1; min-width: 150px; background: none;
+    border: none; border-bottom: 1px dotted rgba(176,28,48,0.35);
+    padding: 4px 2px; font-family: 'Cormorant Garamond', serif;
+    font-size: 14.5px; font-style: italic; color: var(--ink-strong);
+  }
+  .wl-said:focus{ outline: none; border-bottom-color: var(--crimson); }
+
+  .wl-allergy{
+    margin: 0; max-width: 40ch; padding-top: 12px;
+    border-top: 1px dotted rgba(176,28,48,0.25);
+    font-style: italic; font-size: 15.5px; color: var(--crimson);
+  }
+
+  .wl-gate{ width: 100%; max-width: 420px; margin: 4px auto 0; text-align: center; }
+  .wl-gate-btn{
+    background: none; border: none; cursor: pointer; padding: 4px;
+    font-family: 'Cormorant Garamond', serif; font-size: 10.5px;
+    letter-spacing: 0.26em; text-transform: uppercase;
+    color: var(--ink); opacity: 0.55; transition: opacity 0.2s ease, color 0.2s ease;
+  }
+  .wl-gate-btn:hover{ opacity: 1; color: var(--crimson); }
+  .wl-gate-btn:focus-visible{ outline: 1.5px solid var(--crimson); outline-offset: 4px; }
+  /* The gate itself: centred, with the list left legible but softened behind
+     it, so the passphrase is the only thing asking to be read. */
+  .wl-modal{
+    position: fixed; inset: 0; z-index: 60;
+    display: flex; align-items: center; justify-content: center;
+    padding: 22px;
+    background: rgba(253, 248, 238, 0.6);
+    -webkit-backdrop-filter: blur(10px) saturate(1.04);
+    backdrop-filter: blur(10px) saturate(1.04);
+  }
+  .wl-modal[hidden]{ display: none; }
+  .wl-modal-card{
+    position: relative; width: min(400px, 100%);
+    max-height: 100%; overflow-y: auto; overflow-x: hidden;
+    padding: 26px 28px 24px; text-align: center;
+    background: var(--cream);
+    border: 1px solid rgba(176,28,48,0.3);
+    box-shadow: 0 20px 54px rgba(107,70,64,0.18);
+  }
+  @media (prefers-reduced-motion: no-preference){
+    .wl-modal{ animation: gatein 0.28s ease both; }
+    .wl-modal-card{ animation: rise 0.44s cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+    @keyframes gatein{ from{ opacity: 0; } to{ opacity: 1; } }
+  }
+  .wl-modal-close{
+    position: absolute; top: 6px; right: 9px;
+    background: none; border: none; cursor: pointer; padding: 6px;
+    font-family: 'Cormorant Garamond', serif; font-size: 21px; line-height: 1;
+    color: var(--ink); opacity: 0.4;
+  }
+  .wl-modal-close:hover{ opacity: 1; color: var(--crimson); }
+  .wl-modal-close:focus-visible{ outline: 1.5px solid var(--crimson); outline-offset: 2px; }
+  .wl-modal-seal{ display: block; width: 66px; height: auto; margin: 0 auto 6px; }
+  .wl-modal-title{
+    margin: 0 0 4px; font-family: var(--script); font-weight: 400;
+    font-size: clamp(30px, 7vw, 40px); line-height: 1.04; color: var(--crimson);
+  }
+  .wl-modal-why{ margin: 0 0 14px; font-style: italic; font-size: 15px; color: var(--ink); opacity: 0.9; }
+  .wl-modal-pass{
+    margin: 0 0 18px; padding: 12px 10px;
+    border: 1px dashed rgba(176,28,48,0.38);
+    background: rgba(248,230,224,0.45);
+  }
+  .wl-modal-pass .lbl{
+    display: block; margin-bottom: 4px;
+    font-size: 9.5px; letter-spacing: 0.26em;
+    text-transform: uppercase; color: var(--crimson); opacity: 0.8;
+  }
+  .wl-modal-pass b{
+    font-weight: 500; font-size: 27px; letter-spacing: 0.16em;
+    color: var(--crimson);
+  }
+  /* Narrow card: a label beside its field leaves neither enough room, so
+     let them stack. */
+  @media (max-width: 430px){
+    .wl-modal .wl-f{ flex-direction: column; align-items: stretch; gap: 2px; margin-bottom: 12px; }
+    .wl-modal .wl-f > span{ width: auto; }
+    .wl-modal .wl-f input, .wl-modal .wl-f select{ width: 100%; }
+  }
+
+  /* Short screens: a landscape phone, or a browser with everything open. */
+  @media (max-height: 580px){
+    .wl-modal{ padding: 12px; }
+    .wl-modal-card{ padding: 18px 22px 16px; }
+    .wl-modal-seal{ width: 44px; margin-bottom: 2px; }
+    .wl-modal-title{ font-size: clamp(24px, 6vw, 30px); }
+    .wl-modal-why{ margin-bottom: 9px; font-size: 14px; }
+    .wl-modal-pass{ margin-bottom: 12px; padding: 8px 10px; }
+    .wl-modal-pass b{ font-size: 22px; }
+  }
+
+  .wl-f{ display: flex; align-items: baseline; gap: 10px; margin: 0 0 9px; text-align: left; }
+  .wl-f > span{
+    flex: none; width: 88px; font-size: 9.5px; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--crimson);
+  }
+  .wl-f input, .wl-f select{
+    flex: 1; min-width: 0; background: none;
+    border: none; border-bottom: 1px dotted rgba(176,28,48,0.4);
+    padding: 4px 2px; font-family: 'Cormorant Garamond', serif;
+    font-size: 16px; color: var(--ink-strong);
+  }
+  .wl-f input:focus, .wl-f select:focus{ outline: none; border-bottom-color: var(--crimson); }
+  .wl-go{
+    margin-top: 6px; background: none; border: 1px solid rgba(176,28,48,0.35);
+    border-radius: 999px; padding: 6px 22px; cursor: pointer;
+    font-family: 'Cormorant Garamond', serif; font-size: 13px;
+    letter-spacing: 0.14em; color: var(--crimson);
+  }
+  .wl-go:hover{ background: rgba(176,28,48,0.07); border-color: var(--crimson); }
+  .wl-msg{ margin: 9px 0 0; min-height: 1em; font-style: italic; font-size: 14px; color: var(--crimson); }
+
+  .wl-signed{
+    display: flex; align-items: baseline; justify-content: center; gap: 10px;
+    font-style: italic; font-size: 14.5px; color: var(--ink); opacity: 0.85;
+  }
+  .wl-lock{
+    background: none; border: none; cursor: pointer; padding: 2px;
+    font-family: 'Cormorant Garamond', serif; font-size: 13px;
+    color: var(--crimson); text-decoration: underline; text-underline-offset: 3px;
+  }
+
   .balloons{ width: clamp(116px, 24vw, 168px); margin-bottom: -6px; }
   .balloons img{ display: block; width: 100%; height: auto; }
 
@@ -379,8 +597,8 @@
   @media (max-width: 620px){
     .content{ padding: 92px 16px 112px; gap: 15px; }
     .panel{ max-width: 316px; }
-    .tab{ font-size: 13px; letter-spacing: 0.2em; }
-    .tabs{ gap: 18px; }
+    .tab{ font-size: 12px; letter-spacing: 0.16em; padding-bottom: 10px; }
+    .tabs{ gap: 13px; }
     .kicker{ font-size: 11.5px; letter-spacing: 0.28em; }
     .kicker::before, .kicker::after{ width: 18px; }
     .invite-line{ font-size: 18.5px; }
@@ -396,6 +614,11 @@
     .guests .gname, .musts li > span, .facts dd{ font-size: 18.5px; }
     .guests{ gap: 0 22px; }
     .no-plus{ font-size: 19px; }
+    .wl-head{ letter-spacing: 0.18em; }
+    .wl-name{ font-size: 18px; }
+    .wl-note{ font-size: 16.5px; }
+    .wl-allergy{ font-size: 16.5px; }
+    .wl-f > span{ width: 74px; }
   }
 
   @media (max-width: 760px){
@@ -440,6 +663,10 @@
     <nav class="tabs" role="tablist" aria-label="Party details" id="tabs">
       <button class="tab" role="tab" id="tab-invite" aria-controls="panel-invite" aria-selected="true">
         Invitation
+        <span class="underline" aria-hidden="true"><svg viewBox="0 0 100 7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" preserveAspectRatio="none"><path d="M2 4.5 C 16 1, 30 6, 44 3.5 S 72 1, 98 4"/></svg></span>
+      </button>
+      <button class="tab" role="tab" id="tab-wishlist" aria-controls="panel-wishlist" aria-selected="false" aria-label="Wishlist, new">
+        Wishlist<span class="tab-new" aria-hidden="true">!</span>
         <span class="underline" aria-hidden="true"><svg viewBox="0 0 100 7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" preserveAspectRatio="none"><path d="M2 4.5 C 16 1, 30 6, 44 3.5 S 72 1, 98 4"/></svg></span>
       </button>
       <button class="tab" role="tab" id="tab-agenda" aria-controls="panel-agenda" aria-selected="false">
@@ -543,7 +770,67 @@
 
       <p class="guest-note" id="guestNote"></p>
     </section>
+
+    <section class="panel panel-wide" id="panel-wishlist" role="tabpanel" aria-labelledby="tab-wishlist" hidden>
+      <p class="kicker">Tap a line for the details</p>
+      <h2 class="title">Wishlist</h2>
+      <p class="no-plus">Only if you insist. Your being there is the gift.</p>
+
+      <p class="wl-hint" id="wlHint">
+        Friends &mdash; unlock at the foot of this list to mark what you are
+        bringing, so nobody doubles up.
+      </p>
+
+      <div class="wl-group">
+        <p class="wl-head"><span>Only you can give these</span><em>priceless</em></p>
+        <ul class="wl" id="wlMade"></ul>
+      </div>
+
+      <div class="wl-group">
+        <p class="wl-head"><span>And if you really want to spend</span><em>most wanted first</em></p>
+        <ul class="wl" id="wlBuy"></ul>
+      </div>
+
+      <p class="wl-allergy" id="wlNote"></p>
+
+      <div class="wl-gate" id="wlGate">
+        <button class="wl-gate-btn" id="wlGateBtn">Friends, unlock gifting</button>
+      </div>
+
+      <div class="wl-signed" id="wlSigned" hidden>
+        <span id="wlSignedAs"></span>
+        <button class="wl-lock" id="wlLock">lock again</button>
+      </div>
+    </section>
   </main>
+
+  <!-- Gifting gate. Lives inside .card so it inherits the chosen script font;
+       fixed positioning keeps it clear of the card's own overflow. -->
+  <div class="wl-modal" id="wlModal" hidden>
+    <div class="wl-modal-card" role="dialog" aria-modal="true" aria-labelledby="wlModalTitle">
+      <button class="wl-modal-close" id="wlModalClose" type="button" aria-label="Not now">&times;</button>
+      <img class="wl-modal-seal" src="doodles/envelope-heart.png" alt="">
+      <h3 class="wl-modal-title" id="wlModalTitle">The wishlist</h3>
+      <p class="wl-modal-why">Friends &mdash; so nobody buys the same thing twice.</p>
+
+      <p class="wl-modal-pass" id="wlModalPass">
+        <span class="lbl">The passphrase is</span>
+        <b id="wlModalPassWord"></b>
+      </p>
+
+      <label class="wl-f">
+        <span>Passphrase</span>
+        <input type="text" id="wlPass" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false">
+      </label>
+      <label class="wl-f">
+        <span>You are</span>
+        <select id="wlWho"></select>
+      </label>
+
+      <button class="wl-go" id="wlGo" type="button">Unlock</button>
+      <p class="wl-msg" id="wlMsg" role="status"></p>
+    </div>
+  </div>
 </div>
 
 <script src="private/details.js"></script>
@@ -851,6 +1138,562 @@
       setTimeout(function(){ cover.hidden = true; }, 950);
     }
     coverBtn.addEventListener('click', openInvite);
+
+    /* Wishlist gifting.
+
+       Claims are sealed in the browser with a passphrase only the guests
+       have, then stored as opaque text. Whoever holds the store -- Mira
+       included -- sees ciphertext and nothing else, so the page can keep the
+       list without spoiling the birthday. Locked, the panel is just a list:
+       no hearts, no names, and nothing is even fetched. */
+    (function wishlist(){
+      var D = window.PARTY_DETAILS || {};
+      var items = D.wishlist || [];
+      if(!items.length) return;
+
+      var SALT = 'mira-twenty-six-wishlist';
+      var ITER = 600000;
+      var subtle = (window.crypto && window.crypto.subtle) || null;
+
+      /* mode: null until someone comes through the gate, then 'view' (the
+         list alone, Mira's key) or 'gift' (the list plus who is getting
+         what, the friends' key). Only 'gift' ever touches the sheet. */
+      var mode = null;
+      var key = null, me = '', claims = {}, opened = {}, busy = {};
+
+      var madeEl = document.getElementById('wlMade');
+      var buyEl = document.getElementById('wlBuy');
+      var gate = document.getElementById('wlGate');
+      var gateBtn = document.getElementById('wlGateBtn');
+      var modal = document.getElementById('wlModal');
+      var modalCard = modal.querySelector('.wl-modal-card');
+      var modalClose = document.getElementById('wlModalClose');
+      var passEl = document.getElementById('wlPass');
+      var whoEl = document.getElementById('wlWho');
+      var goEl = document.getElementById('wlGo');
+      var msgEl = document.getElementById('wlMsg');
+      var signed = document.getElementById('wlSigned');
+      var signedAs = document.getElementById('wlSignedAs');
+      var lockBtn = document.getElementById('wlLock');
+      var hint = document.getElementById('wlHint');
+
+      if(D.wishlistNote){ document.getElementById('wlNote').textContent = D.wishlistNote; }
+
+      /* The passphrase is spelled out on the gate deliberately -- see
+         details.js. Never prefilled into the field: typing it is what keeps
+         unlocking a thing you choose rather than trip over. */
+      (function tellThem(){
+        var box = document.getElementById('wlModalPass');
+        if(!box) return;
+        if(!D.passphrase){
+          box.hidden = true;
+          return;
+        }
+        document.getElementById('wlModalPassWord').textContent = D.passphrase;
+      })();
+
+      /* ---- sealing ---- */
+
+      function bytesToB64(buf){
+        var b = new Uint8Array(buf), s = '';
+        for(var i = 0; i < b.length; i++){ s += String.fromCharCode(b[i]); }
+        return btoa(s);
+      }
+      function b64ToBytes(str){
+        var s = atob(str), b = new Uint8Array(s.length);
+        for(var i = 0; i < s.length; i++){ b[i] = s.charCodeAt(i); }
+        return b;
+      }
+
+      function derive(pass){
+        var enc = new TextEncoder();
+        return subtle.importKey('raw', enc.encode(pass), 'PBKDF2', false, ['deriveKey'])
+          .then(function(base){
+            return subtle.deriveKey(
+              { name: 'PBKDF2', salt: enc.encode(SALT), iterations: ITER, hash: 'SHA-256' },
+              base, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+          });
+      }
+
+      function seal(obj){
+        var iv = window.crypto.getRandomValues(new Uint8Array(12));
+        return subtle.encrypt({ name: 'AES-GCM', iv: iv }, key, new TextEncoder().encode(JSON.stringify(obj)))
+          .then(function(ct){
+            var out = new Uint8Array(12 + ct.byteLength);
+            out.set(iv, 0);
+            out.set(new Uint8Array(ct), 12);
+            return bytesToB64(out);
+          });
+      }
+
+      /* Anything that will not open is someone else's noise: skip it. */
+      function unseal(blob, k){
+        var raw;
+        try{ raw = b64ToBytes(blob); }catch(e){ return Promise.resolve(null); }
+        if(raw.length < 13){ return Promise.resolve(null); }
+        return subtle.decrypt({ name: 'AES-GCM', iv: raw.slice(0, 12) }, k || key, raw.slice(12))
+          .then(function(pt){
+            try{ return JSON.parse(new TextDecoder().decode(pt)); }
+            catch(e){ return null; }
+          })
+          .catch(function(){ return null; });
+      }
+
+      /* ---- where the sealed rows live ---- */
+
+      function localStore(){
+        var K = 'mira26-claims';
+        function read(){
+          try{ return JSON.parse(localStorage.getItem(K) || '{}'); }catch(e){ return {}; }
+        }
+        function write(m){
+          try{ localStorage.setItem(K, JSON.stringify(m)); }catch(e){}
+        }
+        return {
+          shared: false,
+          all: function(){ return Promise.resolve(read()); },
+          put: function(k, v){ var m = read(); m[k] = v; write(m); return Promise.resolve(); },
+          del: function(k){ var m = read(); delete m[k]; write(m); return Promise.resolve(); }
+        };
+      }
+
+      function remoteStore(url){
+        /* text/plain keeps these "simple" requests, so Apps Script is never
+           asked for a CORS preflight it cannot answer. */
+        function send(body){
+          return fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(body)
+          }).then(function(r){ return r.json(); });
+        }
+        return {
+          shared: true,
+          all: function(){
+            /* Apps Script answers a GET through a redirect the browser is
+               happy to cache, which would hand back the list as it was before
+               the last claim. Bust it. */
+            var fresh = url + (url.indexOf('?') < 0 ? '?' : '&') + 't=' + Date.now();
+            return fetch(fresh, { method: 'GET', cache: 'no-store' }).then(function(r){ return r.json(); })
+              .then(function(rows){
+                var m = {};
+                (rows && rows.rows ? rows.rows : []).forEach(function(r){ m[r.k] = r.v; });
+                return m;
+              });
+          },
+          put: function(k, v){ return send({ op: 'put', k: k, v: v }); },
+          del: function(k){ return send({ op: 'del', k: k }); }
+        };
+      }
+
+      var store = D.claimsEndpoint ? remoteStore(D.claimsEndpoint) : localStore();
+
+      function slug(s){ return String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-'); }
+      function rowKey(id, who){ return id + '::' + slug(who); }
+
+      /* ---- drawing ---- */
+
+      var HEART = '<svg viewBox="0 0 20 18" aria-hidden="true"><use href="#f-heart"></use></svg>';
+      var CHEV = '<svg class="chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" ' +
+                 'stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+                 '<path d="M3.5 6 L8 10.5 L12.5 6"/></svg>';
+
+      function render(){
+        madeEl.innerHTML = '';
+        buyEl.innerHTML = '';
+        items.forEach(function(it){
+          (it.group === 'made' ? madeEl : buyEl).appendChild(row(it));
+        });
+      }
+
+      function row(it){
+        var mine = claims[it.id] || [];
+        var unlocked = (mode === 'gift');
+        var canOpen = !!it.note || unlocked;
+        var isOpen = canOpen && !!opened[it.id];
+
+        var li = document.createElement('li');
+        li.className = 'wl-item' + (canOpen ? '' : ' flat');
+
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'wl-row';
+        btn.id = 'wl-b-' + it.id;
+        btn.setAttribute('aria-controls', 'wl-d-' + it.id);
+        btn.setAttribute('aria-expanded', String(isOpen));
+        if(!canOpen){ btn.disabled = true; }
+
+        var name = document.createElement('span');
+        name.className = 'wl-name';
+        name.textContent = it.name;
+        btn.appendChild(name);
+
+        if(it.voucher){
+          var v = document.createElement('span');
+          v.className = 'wl-voucher';
+          v.textContent = 'voucher ok';
+          btn.appendChild(v);
+        }
+
+        if(unlocked && mine.length){
+          var mark = document.createElement('span');
+          mark.className = 'wl-mark';
+          mark.innerHTML = HEART;
+          if(mine.length > 1){
+            var n = document.createElement('span');
+            n.className = 'n';
+            n.textContent = String(mine.length);
+            mark.appendChild(n);
+          }
+          mark.setAttribute('aria-label',
+            mine.length > 1 ? (mine.length + ' people are getting this') : 'someone is getting this');
+          btn.appendChild(mark);
+        }
+
+        btn.insertAdjacentHTML('beforeend', CHEV);
+
+        var det = document.createElement('div');
+        det.className = 'wl-detail' + (isOpen ? ' open' : '');
+        det.id = 'wl-d-' + it.id;
+        var inner = document.createElement('div');
+        var body = document.createElement('div');
+        body.className = 'wl-body';
+
+        if(it.note){
+          var p = document.createElement('p');
+          p.className = 'wl-note';
+          p.textContent = it.note;
+          body.appendChild(p);
+        }
+        if(unlocked){
+          body.appendChild(claimList(mine));
+          body.appendChild(actions(it, mine));
+        }
+
+        inner.appendChild(body);
+        det.appendChild(inner);
+        li.appendChild(btn);
+        li.appendChild(det);
+
+        btn.addEventListener('click', function(){
+          var was = btn.getAttribute('aria-expanded') === 'true';
+          opened[it.id] = !was;
+          btn.setAttribute('aria-expanded', String(!was));
+          det.classList.toggle('open', !was);
+          setTimeout(relayout, 400);
+        });
+
+        return li;
+      }
+
+      function claimList(list){
+        var ul = document.createElement('ul');
+        ul.className = 'wl-claims';
+        list.forEach(function(c){
+          var li = document.createElement('li');
+          if(c.who === me){ li.className = 'mine'; }
+          li.innerHTML = HEART;
+          var w = document.createElement('span');
+          w.className = 'who';
+          w.textContent = (c.who === me ? 'You' : c.who);
+          li.appendChild(w);
+          if(c.said){
+            var s = document.createElement('span');
+            s.className = 'said';
+            s.textContent = c.said;
+            li.appendChild(s);
+          }
+          ul.appendChild(li);
+        });
+        return ul;
+      }
+
+      function actions(it, list){
+        var wrap = document.createElement('div');
+        wrap.className = 'wl-act';
+        var already = list.some(function(c){ return c.who === me; });
+
+        if(already){
+          var undo = document.createElement('button');
+          undo.type = 'button';
+          undo.className = 'wl-btn plain';
+          undo.textContent = 'Actually, I am not';
+          undo.addEventListener('click', function(){ drop(it); });
+          wrap.appendChild(undo);
+        } else {
+          var said = document.createElement('input');
+          said.type = 'text';
+          said.className = 'wl-said';
+          said.placeholder = 'a note, if you like';
+          said.setAttribute('aria-label', 'A note about what you are getting');
+          var go = document.createElement('button');
+          go.type = 'button';
+          go.className = 'wl-btn';
+          go.textContent = 'I am getting this';
+          go.addEventListener('click', function(){ claim(it, said.value.trim()); });
+          said.addEventListener('keydown', function(e){
+            if(e.key === 'Enter'){ e.preventDefault(); claim(it, said.value.trim()); }
+          });
+          wrap.appendChild(said);
+          wrap.appendChild(go);
+        }
+        return wrap;
+      }
+
+      /* ---- changing things ---- */
+
+      function claim(it, said){
+        if(!key || busy[it.id]) return;
+        busy[it.id] = true;
+        opened[it.id] = true;
+        seal({ who: me, said: said, at: Date.now() })
+          .then(function(blob){ return store.put(rowKey(it.id, me), blob); })
+          .then(refresh)
+          .catch(function(){ say('That did not save. Try again?'); })
+          .then(function(){ busy[it.id] = false; });
+      }
+
+      function drop(it){
+        if(!key || busy[it.id]) return;
+        busy[it.id] = true;
+        opened[it.id] = true;
+        store.del(rowKey(it.id, me))
+          .then(refresh)
+          .catch(function(){ say('That did not save. Try again?'); })
+          .then(function(){ busy[it.id] = false; });
+      }
+
+      function refresh(){
+        return store.all().then(function(map){
+          var next = {};
+          return Promise.all(Object.keys(map).map(function(k){
+            return unseal(map[k]).then(function(v){
+              if(!v || !v.who) return;
+              var id = k.split('::')[0];
+              (next[id] = next[id] || []).push(v);
+            });
+          })).then(function(){
+            Object.keys(next).forEach(function(id){
+              next[id].sort(function(a, b){ return (a.at || 0) - (b.at || 0); });
+            });
+            claims = next;
+            render();
+            setTimeout(relayout, 60);
+          });
+        });
+      }
+
+      /* ---- the gate ---- */
+
+      function say(t){ msgEl.textContent = t || ''; }
+
+      function names(){
+        return (D.guests || []).map(function(g){ return g.name; })
+          .sort(function(a, b){ return a.localeCompare(b); });
+      }
+
+      (function fillWho(){
+        var blank = document.createElement('option');
+        blank.value = '';
+        blank.textContent = 'pick your name';
+        whoEl.appendChild(blank);
+        names().forEach(function(n){
+          var o = document.createElement('option');
+          o.value = n;
+          o.textContent = n;
+          whoEl.appendChild(o);
+        });
+      })();
+
+      function showSigned(){
+        /* The foot of the list: an invitation to step up to gifting while
+           only the list is showing, or who you are once you have. */
+        gate.hidden = (mode !== 'view');
+        hint.hidden = (mode !== 'view');
+        signed.hidden = (mode !== 'gift');
+        if(mode === 'gift'){
+          signedAs.textContent = store.shared
+            ? ('Unlocked as ' + me + '.')
+            : ('Unlocked as ' + me + '. Not shared yet — these stay on this device.');
+        }
+      }
+
+      function unlock(pass, who){
+        if(!subtle){
+          say('This browser will not do the encryption. Try Chrome or Safari over https.');
+          return Promise.resolve(false);
+        }
+        say('Unlocking…');
+        return derive(pass).then(function(k){
+          if(!D.claimsCheck) return k;
+          return unseal(D.claimsCheck, k).then(function(v){
+            if(!v || v.ok !== true){ throw new Error('wrong'); }
+            return k;
+          });
+        }).then(function(k){
+          key = k;
+          me = who;
+          mode = 'gift';
+          remember('gift', who, pass);
+          /* Stretching the key and waking the sheet together take a few
+             seconds, so keep saying something until the list is actually in. */
+          say('Fetching what everyone has claimed…');
+          return refresh().then(function(){
+            say('');
+            closeGate(true);
+            showSigned();
+            return true;
+          });
+        }).catch(function(){
+          key = null;
+          mode = null;
+          say('That passphrase is not right.');
+          return false;
+        });
+      }
+
+      function remember(m, who, pass){
+        try{
+          sessionStorage.setItem('wl-mode', m);
+          sessionStorage.setItem('wl-who', who || '');
+          sessionStorage.setItem('wl-pass', pass || '');
+        }catch(e){}
+      }
+
+      function enterView(){
+        mode = 'view';
+        key = null;
+        me = '';
+        claims = {};
+        remember('view', '', '');
+        say('');
+        closeGate(true);
+        showSigned();
+        render();
+        setTimeout(relayout, 60);
+      }
+
+      function lock(){
+        mode = null;
+        key = null;
+        me = '';
+        claims = {};
+        opened = {};
+        try{
+          sessionStorage.removeItem('wl-mode');
+          sessionStorage.removeItem('wl-who');
+          sessionStorage.removeItem('wl-pass');
+        }catch(e){}
+        passEl.value = '';
+        showSigned();
+        render();
+        openGate();
+        setTimeout(relayout, 60);
+      }
+
+      function openGate(){
+        say('');
+        modal.hidden = false;
+        setTimeout(function(){ passEl.focus(); }, 60);
+      }
+
+      /* Silent closes follow a successful passphrase or a move to another
+         tab. A plain close is someone backing out of the gate with no key,
+         and there is nothing behind it for them, so send them back to the
+         invitation rather than leaving a blurred page. */
+      function closeGate(silent){
+        if(modal.hidden) return;
+        modal.hidden = true;
+        say('');
+        if(!silent && mode === null){
+          document.getElementById('tab-invite').click();
+        }
+      }
+
+      function gateIfNeeded(){
+        if(mode === null){ openGate(); }
+        else { closeGate(true); }
+      }
+
+      gateBtn.addEventListener('click', openGate);
+      modalClose.addEventListener('click', function(){ closeGate(); });
+
+      /* Clicking the softened backdrop dismisses; clicking the card does not. */
+      modal.addEventListener('click', function(e){
+        if(e.target === modal){ closeGate(); }
+      });
+
+      document.addEventListener('keydown', function(e){
+        if(e.key === 'Escape' && !modal.hidden){ closeGate(); }
+      });
+
+      /* The gate is the way in to the tab, not a footnote on it. */
+      tabs.forEach(function(t){
+        t.addEventListener('click', function(){
+          if(t.id === 'tab-wishlist'){ gateIfNeeded(); }
+          else { closeGate(true); }
+        });
+      });
+
+      /* Keep tabbing inside the gate while it is up. */
+      modalCard.addEventListener('keydown', function(e){
+        if(e.key !== 'Tab') return;
+        var able = modalCard.querySelectorAll('button, input, select');
+        if(!able.length) return;
+        var first = able[0], last = able[able.length - 1];
+        if(e.shiftKey && document.activeElement === first){
+          e.preventDefault();
+          last.focus();
+        } else if(!e.shiftKey && document.activeElement === last){
+          e.preventDefault();
+          first.focus();
+        }
+      });
+
+      function same(a, b){
+        return !!a && !!b && String(a).toLowerCase() === String(b).toLowerCase();
+      }
+
+      goEl.addEventListener('click', function(){
+        var pass = passEl.value.trim();
+        var who = whoEl.value;
+        if(!pass){ say('Passphrase first.'); return; }
+
+        /* Mira's key: the list on its own. No name needed, nothing fetched. */
+        if(same(pass, D.viewPassphrase)){ enterView(); return; }
+
+        if(!who){ say('Pick your name so everyone knows who has what.'); return; }
+        unlock(pass, who);
+      });
+
+      passEl.addEventListener('keydown', function(e){
+        if(e.key === 'Enter'){ e.preventDefault(); goEl.click(); }
+      });
+
+      lockBtn.addEventListener('click', lock);
+
+      render();
+      showSigned();
+
+      /* Back within the same tab session: pick up where they left off, so the
+         gate does not ask again on every tab switch. */
+      (function resume(){
+        var m, who, pass;
+        try{
+          m = sessionStorage.getItem('wl-mode');
+          who = sessionStorage.getItem('wl-who');
+          pass = sessionStorage.getItem('wl-pass');
+        }catch(e){}
+        if(m === 'view'){
+          mode = 'view';
+          showSigned();
+          render();
+        } else if(m === 'gift' && who && pass && subtle){
+          whoEl.value = who;
+          unlock(pass, who);
+        }
+      })();
+    })();
 
     applyAll();
     if(window.ResizeObserver){ new ResizeObserver(relayout).observe(card); }
