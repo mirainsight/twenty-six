@@ -22,7 +22,7 @@ window.PARTY_DETAILS = {
     { name: "Melanie",        status: "pending"},
     { name: "Ruijie",         status: "pending"},
     { name: "Cayman",         status: "yes"    },
-    { name: "Je Jyne",        status: "pending"},
+    { name: "Je Jyne",        status: "yes"    },
     { name: "Jo Wong",        status: "yes"    },
     { name: "Nat Wong",       status: "yes"    },
     { name: "Shania Perkins", status: "yes"    },
