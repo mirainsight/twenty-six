@@ -33,7 +33,7 @@ window.PARTY_DETAILS = {
     { name: "Nic Tan",        status: "no"     },
     { name: "Caitlin",        status: "yes"    },
     { name: "Nat Heng",       status: "yes"    },
-    { name: "Hayley",         status: "pending"},
+    { name: "Hayley",         status: "yes"    },
     { name: "Kim Liew",       status: "yes"    },
     { name: "Bev",            status: "no"     },
     { name: "Ryan Gui",       status: "pending"},
@@ -43,7 +43,7 @@ window.PARTY_DETAILS = {
     { name: "Josh Wong",      status: "yes"    },
     { name: "Ashley Cheah",   status: "pending"},
     { name: "Oswell",         status: "yes"    },
-    { name: "Aunty Luna and Uncle Tony (Mira’s parents)", status: "pending"},
+    { name: "Aunty Luna and Uncle Tony (Mira’s parents)", status: "yes"    },
     { name: "Shaun",          status: "heart"  }
   ],
 
